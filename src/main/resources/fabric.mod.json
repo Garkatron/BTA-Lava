@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "id": "name",
+  "id": "lava",
   "version": "${version}",
 
-  "name": "name",
+  "name": "lava",
   "description": "This mod aims to help new BTA modders.",
   "authors": [
     "@Garkatron"
@@ -19,20 +19,20 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "deus.name.ExampleMod"
+      "deus.lava.LavaMod"
     ],
 		"beforeGameStart": [
-          "deus.name.ExampleMod"
+          "deus.lava.LavaMod"
 		],
 		"afterGameStart": [
-          "deus.name.ExampleMod"
+          "deus.lava.LavaMod"
 		],
 		"recipesReady": [
-          "deus.name.ExampleMod"
+          "deus.lava.LavaMod"
 		]
 	},
   "mixins": [
-		"name.mixins.json"
+		"lava.mixins.json"
   ],
 
   "depends": {

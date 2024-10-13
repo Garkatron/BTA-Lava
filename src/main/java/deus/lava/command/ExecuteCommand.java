@@ -30,27 +30,18 @@ public class ExecuteCommand extends Command {
 		switch (strings[0].trim().toLowerCase()) {
 			case "file": {
 				commandSender.sendMessage("Running code from file: " + strings[1]);
-				LuaSandbox.runFileFromPath(strings[1]);
+				//LuaSandbox.runFileFromPath(strings[1]);
 				return true;
 			}
 			case "code": {
 				String script = Arrays.stream(strings, 1, strings.length).collect(Collectors.joining(" "));
-				//LuaSandbox.executeTask(strings[1],()->{
-				LuaSandbox.runScriptSandbox(script);
-				//});
+				//LuaSandbox.runScriptSandbox(script);
 				return true;
 			}
 			case "stop": {
 				commandSender.sendMessage("Stopping lua task: " + strings[1]);
-				LuaSandbox.stopLuaThread(strings[1]);
-				/*boolean r =
-				if (!r) {
-					Lava.LOGGER.error("Error stopping lua task: {}", strings[1]);
-				} else {
+				//LuaSandbox.stopLuaThread(strings[1]);
 
-					Lava.LOGGER.error("Successful stopping lua task: {}", strings[1]);
-				}
-				return r;*/
 				return true;
 			}
 			default: {

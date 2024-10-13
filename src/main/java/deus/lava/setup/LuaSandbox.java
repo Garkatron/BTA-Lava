@@ -26,7 +26,6 @@ public class LuaSandbox {
 	private static final Globals user_globals = new Globals();
 	//private static final ExecutorService executor = Executors.newFixedThreadPool(10);
 	//private static final HashMap<String, Future<?>> luaThreads = new HashMap<>();
-	private static final HashMap<String, LuaThread> luaThreads = new HashMap<>();
 
 //	public static boolean stopLuaTask(String name) {
 //		// Array to hold active threads
@@ -86,14 +85,17 @@ public class LuaSandbox {
 	// Método para detener un LuaThread específico
 	public static boolean stopLuaThread(String name) {
 		if (!name.isEmpty()) {
-			LuaThread thread = luaThreads.get(name);
 
-			if (thread != null) {
-				// Lanzar OrphanedThread para detener el hilo
+			//if (!user_globals.get("running").isnil())
+			LuaValue greetFunction = user_globals.get("stop");
+
+			if (greetFunction.isfunction()) {
+				greetFunction.call();
+			} else {
+				System.err.println("La función 'stop' no se encontró o no es una función.");
 			}
 
-			Lava.LOGGER.error("Thread {} doesn't exist", name);
-			return false;
+			return true;
 		}
 
 		Lava.LOGGER.error("Name is empty");
@@ -123,34 +125,34 @@ public class LuaSandbox {
 		}
 	}
 
-	public static void runFileFromPath(String path) {
+	public static void runFileFromPath(String path, Globals environment) {
 		File file = new File(path);
 		if (!file.exists()) {
 			Lava.LOGGER.error("No se pudo encontrar el archivo {}", path);
 			return;
 		}
 		try (InputStream luaScript = Files.newInputStream(file.toPath())) {
-			// Usar BufferedReader para leer el InputStream
 			BufferedReader reader = new BufferedReader(new InputStreamReader(luaScript));
-			LuaValue chunk = lua.load(reader, path, user_globals);  // Cargar y ejecutar el script
-			executeLuaThread(user_globals, chunk, path);
+			//Globals user_globals = createUserGlobals();
+			LuaValue chunk = lua.load(reader, path, environment);
+			executeLuaThread(environment, chunk, path);
 		} catch (Exception e) {
 			Lava.LOGGER.error("Error al cargar el script Lua: ", e);
 		}
 	}
 
 
-	public static void runScriptSandbox(String script) {
+	public static void runScriptSandbox(String script, Globals environment) {
 		// Cada script tendrá su propio conjunto de globals, lo que debería
 		// prevenir la fuga entre scripts que se ejecutan en el mismo servidor.
-		Globals user_globals = createUserGlobals();
+		//Globals user_globals = createUserGlobals();
 
 		// Cargar y ejecutar el script desde la cadena.
-		LuaValue chunk = lua.load(script, "main", user_globals);
-		executeLuaThread(user_globals, chunk, script);
+		LuaValue chunk = lua.load(script, "main", environment);
+		executeLuaThread(environment, chunk, script);
 	}
 
-	private static Globals createUserGlobals() {
+	public static Globals createUserGlobals() {
 
 		user_globals.load(new JseBaseLib());
 		user_globals.load(new PackageLib());
@@ -158,8 +160,8 @@ public class LuaSandbox {
 		user_globals.load(new TableLib());
 		user_globals.load(new JseStringLib());
 		user_globals.load(new JseMathLib());
-		// !______
 		user_globals.load(new CoroutineLib());
+
 
 		return user_globals;
 	}
@@ -167,7 +169,6 @@ public class LuaSandbox {
 	private static void executeLuaThread(Globals user_globals, LuaValue chunk, String scriptIdentifier) {
 
 		LuaThread thread = new LuaThread(user_globals, chunk);
-		luaThreads.put(scriptIdentifier, thread);
 		// Configurar la función hook para lanzar un Error inmediatamente, que no será
 		// manejado por ningún código Lua excepto por la coroutine.
 		LuaValue hookfunc = new ZeroArgFunction() {

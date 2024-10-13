@@ -24,7 +24,7 @@ import java.util.concurrent.Future;
 public class LuaSandbox {
 	private static Globals lua;
 	private static final Globals user_globals = new Globals();
-	//private static final ExecutorService executor = Executors.newFixedThreadPool(10);
+	private static final ExecutorService executor = Executors.newFixedThreadPool(10);
 	//private static final HashMap<String, Future<?>> luaThreads = new HashMap<>();
 
 //	public static boolean stopLuaTask(String name) {
@@ -47,17 +47,16 @@ public class LuaSandbox {
 //		return true;
 //	}
 //
-//	public static void executeTask(String name, Runnable task) {
-//		Future<?> future = executor.submit(()->{
-//			try {
-//				task.run();
-//			} catch (Exception e) {
-//				Lava.LOGGER.error("Error on task: {}", e);
-//			}
-//		}); // Enviar el hilo al executorç
-//		luaThreads.put(name, future); // Guarda el Future en vez del Thread
-//		Lava.LOGGER.info("Executing task in thread: {}", name);
-//	}
+	public static void executeTask(String name, CancellableTask task) {
+		Future<?> future = executor.submit(()-> {
+			try {
+				task.run();
+			} catch (Exception e) {
+				Lava.LOGGER.error("Error on task: {}", e);
+			}
+		});
+		Lava.LOGGER.info("Executing task in thread: {}", name);
+	}
 
 	public static void init() {
 		lua = new Globals();
@@ -171,26 +170,26 @@ public class LuaSandbox {
 		LuaThread thread = new LuaThread(user_globals, chunk);
 		// Configurar la función hook para lanzar un Error inmediatamente, que no será
 		// manejado por ningún código Lua excepto por la coroutine.
-		LuaValue hookfunc = new ZeroArgFunction() {
-			public LuaValue call() {
-				// Un error Lua simple puede ser atrapado por el script, pero un
-				// Error de Java pasará al nivel superior y detendrá el script.
-				throw new Error("Script overran resource limits.");
-			}
-		};
+//		LuaValue hookfunc = new ZeroArgFunction() {
+//			public LuaValue call() {
+//				// Un error Lua simple puede ser atrapado por el script, pero un
+//				// Error de Java pasará al nivel superior y detendrá el script.
+//				throw new Error("Script overran resource limits.");
+//			}
+//		};
 
-		final int instruction_count = 30000;  // Limitar a 30,000 instrucciones
+		//final int instruction_count = 30000;  // Limitar a 30,000 instrucciones
 		// La biblioteca de depuración debe ser cargada para que las funciones hook funcionen,
 		// lo que nos permite limitar la ejecución de scripts a un cierto número de instrucciones a la vez.
 		// Sin embargo, no deseamos exponer la biblioteca en los globals del usuario,
 		// por lo que se elimina inmediatamente una vez creada.
-		user_globals.load(new DebugLib());
+		//user_globals.load(new DebugLib());
 
-		LuaValue sethook = user_globals.get("debug").get("sethook");
+		//LuaValue sethook = user_globals.get("debug").get("sethook");
 
-		user_globals.set("debug", LuaValue.NIL);
-		sethook.invoke(LuaValue.varargsOf(new LuaValue[] { thread, hookfunc,
-			LuaValue.EMPTYSTRING, LuaValue.valueOf(instruction_count) }));
+//		user_globals.set("debug", LuaValue.NIL);
+//		sethook.invoke(LuaValue.varargsOf(new LuaValue[] { thread, hookfunc,
+//			LuaValue.EMPTYSTRING, LuaValue.valueOf(instruction_count) }));
 
 		// Cuando reanudemos el hilo, ejecutará hasta 'instruction_count' instrucciones
 		// y luego llamará a la función hook que provocará un error y detendrá el script.

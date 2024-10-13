@@ -1,5 +1,6 @@
 package deus.lava.command;
 
+import deus.lava.setup.CancellableTask;
 import deus.lava.setup.EnvironmentManager;
 import deus.lava.setup.LuaSandbox;
 import net.minecraft.core.net.command.Command;
@@ -7,152 +8,157 @@ import net.minecraft.core.net.command.CommandHandler;
 import net.minecraft.core.net.command.CommandSender;
 import org.luaj.vm2.Globals;
 
-import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 public class EnvironmentCommand extends Command {
 
-	//private static final String[] opsL0 = new String[]{"create", "del", "set", "exec"};
-	//private static final String[] opsL1 = new String[]{"code", "file", "fun"};
-
-	private static final HashMap<String, CommandRunnable> opsL0 = new HashMap<>();
-	private static final HashMap<String, String> opsShort = new HashMap<>();
-	private static final HashMap<String, String> desc = new HashMap<>();
-
-
-
-	private static void addSubCommand(String name, String sname, String description, CommandRunnable runnable) {
-		HashMap<String, String> desc = new HashMap<>();
-		opsL0.put(name, runnable);
-		opsShort.put(name, sname);
-		desc.put(name, description);
-	}
-
-	private static boolean executeSubcommand(String name, String[] args, CommandSender commandSender) {
-		return opsL0.get(name).run(commandSender, args);
-	}
+	private final SubCommand rootCommand;
 
 	public EnvironmentCommand(String... alts) {
 		super("env", alts);
 
-		addSubCommand("create", "c", "create a enviroment, second arg is the name",
-			(commandSender, args)->{
-				EnvironmentManager.createUserEnvironment(args[1]);
-				commandSender.sendMessage(String.valueOf(EnvironmentManager.getEnvironmentsNames()));
-				return true;
+		// Definir el comando raíz para "env"
+		rootCommand = new SubCommand("env", "Root command for environment operations",
+			(commandSender, args) -> {
+				commandSender.sendMessage("Usage: /env <subcommand> [options]");
+				return false;
 			});
 
-		addSubCommand("remove", "rem", "remove a environment",
-			(commandSender, args)->{
-				EnvironmentManager.removeEnvironment(args[1]);
-				return true;
-			});
-
-
-		addSubCommand("set", "set", "set a environment",
-			(commandSender, args)->{
-				EnvironmentManager.setCurrentEnvironment(args[1]);
-				return true;
-			});
-
-		addSubCommand("execute", "exec", "exec something",
-			(commandSender, args)->{
-				Globals currentEnvironment = EnvironmentManager.getCurrentEnvironment();
-
-				if (currentEnvironment == null) {
-					commandSender.sendMessage("The environment doesn't exists");
+		SubCommand createCommand = new SubCommand("create", "Create an environment",
+			(commandSender, args) -> {
+				if (args.length < 1) {
+					commandSender.sendMessage("Usage: /env create <environment_name>");
 					return false;
 				}
-
-					executeSubcommand(args[1], args, commandSender);
-
+				EnvironmentManager.createUserEnvironment(args[0]);
+				commandSender.sendMessage("Environment created.");
 				return true;
 			});
 
-		addSubCommand("fun", "exec", "exect something",
-			(commandSender, args)->{
-				Globals currentEnvironment = EnvironmentManager.getCurrentEnvironment();
-
-				if (!currentEnvironment.get(args[2]).isfunction()) {
-					commandSender.sendMessage("The function: " + args[2] + " doesn't exists");
+		SubCommand setCommand = new SubCommand("set", "set current a environment",
+			(commandSender, args) -> {
+				if (args.length < 1) {
+					commandSender.sendMessage("Usage: /env set <environment_name>");
 					return false;
 				}
+				EnvironmentManager.setCurrentEnvironment(args[0]);
+				commandSender.sendMessage("Success.");
+				return true;
+			});
 
-				currentEnvironment.get(args[2]).call();
+		SubCommand removeCommand = new SubCommand("remove", "Remove an environment",
+			(commandSender, args) -> {
+				if (args.length < 1) {
+					commandSender.sendMessage("Usage: /env remove <environment_name>");
+					return false;
+				}
+				if (EnvironmentManager.removeEnvironment(args[0])) {
+					commandSender.sendMessage("Environment removed.");
+					return true;
+				} else {
+					return false;
+				}
+			});
+
+		SubCommand executeCommand = new SubCommand("execute", "Execute a function or script",
+			(commandSender, args) -> {
+				if (args.length < 1) {
+					commandSender.sendMessage("Usage: /env execute <subcommand> [options]");
+					return false;
+				}
+				commandSender.sendMessage("Executing subcommand...");
+				return false;
+			});
+
+		executeCommand.addSubCommand(new SubCommand("fun", "Execute a function",
+			(commandSender, args) -> {
+				Globals env = EnvironmentManager.getCurrentEnvironment();
+				if (args.length < 1) {
+					commandSender.sendMessage("Usage: /env execute fun <function_name>");
+					return false;
+				}
+				if (!env.get(args[0]).isfunction()) {
+					commandSender.sendMessage("Function " + args[0] + " does not exist.");
+					return false;
+				}
+				env.get(args[0]).call();
+				return true;
+			}));
+
+		executeCommand.addSubCommand(new SubCommand("file", "Run a Lua file",
+			(commandSender, args) -> {
+				if (args.length < 1) {
+					commandSender.sendMessage("Usage: /env execute file <file_path>");
+					return false;
+				}
+				CancellableTask myTask = new CancellableTask(() -> {
+					LuaSandbox.runFileFromPath(args[0], EnvironmentManager.getCurrentEnvironment());
+
+				});
+				LuaSandbox.executeTask(args[0], myTask);
+				return true;
+			}));
+
+		executeCommand.addSubCommand(new SubCommand("code", "Execute Lua code",
+			(commandSender, args) -> {
+				if (args.length < 1) {
+					commandSender.sendMessage("Usage: /env execute code <lua_code>");
+					return false;
+				}
+				Globals env = EnvironmentManager.getCurrentEnvironment();
+				String script = String.join(" ", args);
+				LuaSandbox.runScriptSandbox(script, env);
+				return true;
+			}));
+
+		SubCommand helpCommand = new SubCommand(
+			"help", "Help command for see env options",
+			(commandSender, args) -> {
+
+				printSubCommandHelp(SubCommand.getSubCommandHelpRecursiveNested(rootCommand),commandSender,0);
 
 				return true;
 			});
 
-		addSubCommand("file", "exec", "exect something",
-			(commandSender, args)->{
-				Globals currentEnvironment = EnvironmentManager.getCurrentEnvironment();
+		rootCommand.addSubCommand(setCommand);
+		rootCommand.addSubCommand(helpCommand);
+		rootCommand.addSubCommand(createCommand);
+		rootCommand.addSubCommand(removeCommand);
+		rootCommand.addSubCommand(executeCommand);
+	}
 
-				LuaSandbox.runFileFromPath(args[2], currentEnvironment);
+	public void printSubCommandHelp(List<HashMap<String, Object>> subCommandList, CommandSender commandSender, int level) {
+		for (HashMap<String, Object> subCommand : subCommandList) {
+			// Obtener el nombre y la descripción
+			String name = (String) subCommand.get("name");
+			String description = (String) subCommand.get("description");
 
-				return true;
-			});
+			// Imprimir con indentación basada en el nivel de profundidad
+			commandSender.sendMessage("  ".repeat(level) + "- " + name + ": " + description);
 
-		addSubCommand("code", "exec", "exect something",
-			(commandSender, args)->{
-				Globals currentEnvironment = EnvironmentManager.getCurrentEnvironment();
-
-				LuaSandbox.runScriptSandbox(args[3], currentEnvironment);
-
-				return true;
-			});
-
+			// Verificar si hay subcomandos anidados y llamar recursivamente
+			if (subCommand.containsKey("subcommands")) {
+				List<HashMap<String, Object>> nestedSubCommands =
+					(List<HashMap<String, Object>>) subCommand.get("subcommands");
+				printSubCommandHelp(nestedSubCommands, commandSender,level + 1);
+			}
+		}
 	}
 
 	@Override
-	public boolean execute(CommandHandler commandHandler, CommandSender commandSender, String[] strings) {
-		return executeSubcommand(strings[0], strings, commandSender);
-
-
-
-//		if (arg0.equals(opsL0[0])) {
-//
-//			return true;
-//		} else if (arg0.equals(opsL0[1])) {
-//			return true;
-//		} else if (arg0.equals(opsL0[2])) {
-//
-//		} else if (arg0.equals(opsL0[3])) {
-//			String arg2 = strings[2].trim().toLowerCase();
-//			//String arg3 = strings[3].trim().toLowerCase();
-//
-//
-//			switch (arg1) {
-//				case "code": {
-//					LuaSandbox.runScriptSandbox(arg2, currentEnvironment);
-//					return true;
-//				}
-//				case "file": {
-//					LuaSandbox.runFileFromPath(arg2, currentEnvironment);
-//					return true;
-//				}
-//				case "fun": {
-//					LuaValue fun = EnvironmentManager.getCurrentEnvironment().get(arg2);
-//					if (!fun.isfunction()) {
-//						commandSender.sendMessage("This function " + arg2 + " doesn't exists in this environment");
-//						return false;
-//					}
-//					fun.call();
-//					return true;
-//				}
-//			}
-//
-//			return false;
-//		}
-//		return false;
+	public boolean execute(CommandHandler commandHandler, CommandSender commandSender, String[] args) {
+		rootCommand.execute(commandSender, args);
+		return true;
 	}
 
 	@Override
-	public boolean opRequired(String[] strings) {
+	public boolean opRequired(String[] args) {
 		return false;
 	}
 
 	@Override
 	public void sendCommandSyntax(CommandHandler commandHandler, CommandSender commandSender) {
-
+		commandSender.sendMessage("Usage: /env <subcommand> [options]");
 	}
 }

@@ -100,13 +100,13 @@ dependencies {
 	include(implementation("org.apache.commons:commons-lang3:3.12.0"))
 }
 java {
-	sourceCompatibility = JavaVersion.VERSION_1_8
-	targetCompatibility = JavaVersion.VERSION_1_8
+	sourceCompatibility = JavaVersion.VERSION_11
+	targetCompatibility = JavaVersion.VERSION_11
 	withSourcesJar()
 }
 
 tasks.withType(JavaCompile).configureEach {
-	options.release.set 8
+	options.release.set 11
 }
 
 jar {

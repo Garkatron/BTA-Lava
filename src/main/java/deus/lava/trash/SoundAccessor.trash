@@ -1,0 +1,42 @@
+package deus.lava.trash;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.sound.SoundCategory;
+
+public class SoundAccessor {
+
+	private final Minecraft mc;
+
+	public SoundAccessor(Minecraft minecraft) {
+		this.mc = minecraft;
+	}
+
+	public void playSound(String soundPath, int categoryIndex, float x, float y, float z, float volume, float pitch) {
+		if (categoryIndex < 0 || categoryIndex >= SoundCategory.values().length) {
+			throw new IllegalArgumentException("Invalid category index: " + categoryIndex);
+		}
+
+		SoundCategory category = SoundCategory.values()[categoryIndex];
+
+		mc.sndManager.playSound(soundPath, category, x, y, z, volume, pitch);
+	}
+
+
+	public void playSound2(String soundPath, int categoryIndex, float volume, float pitch) {
+		if (categoryIndex < 0 || categoryIndex >= SoundCategory.values().length) {
+			throw new IllegalArgumentException("Invalid category index: " + categoryIndex);
+		}
+
+		SoundCategory category = SoundCategory.values()[categoryIndex];
+		mc.sndManager.playSound(soundPath, category, volume, pitch);
+	}
+
+	public void playSound3(String soundPath, int categoryIndex, float volume, float pitch, String soundID) {
+		if (categoryIndex < 0 || categoryIndex >= SoundCategory.values().length) {
+			throw new IllegalArgumentException("Invalid category index: " + categoryIndex);
+		}
+
+		SoundCategory category = SoundCategory.values()[categoryIndex];
+		mc.sndManager.playSound(soundPath, category, volume, pitch, soundID);
+	}
+}

@@ -1,0 +1,19 @@
+package deus.lava.trash;
+
+import net.minecraft.core.world.World;
+
+public class WorldAccessor {
+	private final World world;
+
+	public WorldAccessor(World world) {
+		this.world = world;
+	}
+
+	public boolean setBlock(int x, int y, int z, int id) {
+		return world.setBlock(x, y, z, id);
+	}
+
+	public boolean setBlockRaw(int x, int y, int z, int id) {
+		return world.setBlockRaw(x, y, z, id);
+	}
+}

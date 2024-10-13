@@ -1,0 +1,24 @@
+package deus.lava.trash;
+
+import deus.lava.signal.LuaSignal;
+
+public class PlayerSignals {
+	private static final PlayerSignals INSTANCE = new PlayerSignals();
+
+	public final LuaSignal onJump = new LuaSignal();
+	public final LuaSignal onIsInWater = new LuaSignal();
+	public final LuaSignal onIsInLava = new LuaSignal();
+	public final LuaSignal onBreakBlock = new LuaSignal();
+	public final LuaSignal onPickUpItem = new LuaSignal();
+	public final LuaSignal onDropItem = new LuaSignal();
+	public final LuaSignal onShift = new LuaSignal();
+	public final LuaSignal onRun = new LuaSignal();
+	public final LuaSignal onWalk = new LuaSignal();
+	public final LuaSignal onDeath = new LuaSignal();
+
+	private PlayerSignals() {}
+
+	public static PlayerSignals getInstance() {
+		return INSTANCE;
+	}
+}

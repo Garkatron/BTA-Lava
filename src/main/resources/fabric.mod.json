@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "id": "name",
+  "id": "lava",
   "version": "${version}",
 
   "name": "name",
@@ -19,20 +19,20 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "deus.name.ExampleMod"
+      "deus.lava.Lava"
     ],
 		"beforeGameStart": [
-          "deus.name.ExampleMod"
+          "deus.lava.Lava"
 		],
 		"afterGameStart": [
-          "deus.name.ExampleMod"
+          "deus.lava.Lava"
 		],
 		"recipesReady": [
-          "deus.name.ExampleMod"
+          "deus.lava.Lava"
 		]
 	},
   "mixins": [
-		"name.mixins.json"
+		"lava.mixins.json"
   ],
 
   "depends": {

@@ -1,0 +1,142 @@
+package deus.lava.trash;
+
+import deus.lava.api.interfaces.IEntityPlayerLua;
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.entity.player.EntityPlayer;
+import net.minecraft.core.item.Item;
+import net.minecraft.core.item.ItemStack;
+
+public class PlayerAccessor {
+	private final Minecraft mc;
+
+	public PlayerAccessor(Minecraft mc) {
+		this.mc = mc;
+	}
+	public void sendMessage(String msg) {
+		if (msg!=null) {
+			mc.thePlayer.sendMessage(msg);
+		}
+	}
+
+	public boolean hasItem(Item item) {
+		EntityPlayer player = mc.thePlayer;
+		return player.hasItem(item);
+	}
+
+	public void setCurrentItem(int i) {
+		EntityPlayer player = mc.thePlayer;
+		player.setCurrentItem(i);
+	}
+
+	public void swapItems(int one, int two) {
+		EntityPlayer player = mc.thePlayer;
+		player.swapItems(one, two);
+	}
+
+	public boolean canBreathUnderWater() {
+		EntityPlayer player = mc.thePlayer;
+		return player.canBreatheUnderwater();
+	}
+
+	public int getGamemode() {
+		EntityPlayer player = mc.thePlayer;
+		return player.getGamemode().getId();
+	}
+
+	public String getHeldItem() {
+		EntityPlayer player = mc.thePlayer;
+		ItemStack itemStack = player.getHeldItem();
+		if (itemStack!=null)
+		{
+			return itemStack.toString();
+		}
+		else {
+			return "null";
+		}
+	}
+
+	public boolean isPlayerSleeping() {
+		EntityPlayer player = mc.thePlayer;
+		return player.isPlayerSleeping();
+	}
+
+	public boolean isPlayerFullyAsleep() {
+		EntityPlayer player = mc.thePlayer;
+		return player.isPlayerFullyAsleep();
+	}
+
+	public float getBedOrientationInDegrees() {
+		EntityPlayer player = mc.thePlayer;
+		return player.getBedOrientationInDegrees();
+	}
+
+	public boolean isSwinging() {
+		EntityPlayer player = mc.thePlayer;
+		return player.isSwinging;
+	}
+
+	public boolean isInLava() {
+		EntityPlayer player = mc.thePlayer;
+		return player.isInLava();
+	}
+
+	public boolean isWalking() {
+		EntityPlayer player = mc.thePlayer;
+		return player.isWalking;
+	}
+
+	public boolean isSkating() {
+		EntityPlayer player = mc.thePlayer;
+		return player.isSkating;
+	}
+
+	public void wakeUpPlayer(boolean flag, boolean flag1) {
+		EntityPlayer player = mc.thePlayer;
+		player.wakeUpPlayer(flag, flag1);
+	}
+
+	public boolean isSneaking() {
+		EntityPlayer player = mc.thePlayer;
+		return player.isSneaking();
+	}
+
+	public String getCurrentEquippedItem() {
+		EntityPlayer player = mc.thePlayer;
+		return player.getCurrentEquippedItem().toString();
+	}
+
+	public void killPlayer() {
+		EntityPlayer player = mc.thePlayer;
+		player.killPlayer();
+	}
+
+	public int getScore() {
+		EntityPlayer player = mc.thePlayer;
+		return player.getScore();
+	}
+	public void setPlayerSleeping() {
+		IEntityPlayerLua player = (IEntityPlayerLua) mc.thePlayer;
+		player.sleepPlayer();
+	}
+
+	public void setPlayerSleepingAt(int x, int y, int z) {
+		IEntityPlayerLua player = (IEntityPlayerLua) mc.thePlayer;
+		player.sleepPlayerAtCoords(x, y, z);
+	}
+	public WorldAccessor getWorld() {
+		EntityPlayer player = mc.thePlayer;
+		return new WorldAccessor(player.world);
+	}
+
+//	public World getWorld() {
+//		EntityPlayer player = mc.thePlayer;
+//		return player.world;
+//	}
+//
+//	public EntityPlayer getPlayer() {
+//		EntityPlayer player = mc.thePlayer;
+//		return player;
+//	}
+
+}
+

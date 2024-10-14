@@ -1,30 +1,19 @@
 package deus.lava;
 
-import deus.lava.api.*;
-import deus.lava.api.player.PlayerUtils;
+import deus.lava.api.LavaSignals;
 import deus.lava.command.EnvironmentCommand;
 import deus.lava.command.ExecuteCommand;
 import deus.lava.command.LavaCommand;
 import deus.lava.setup.LuaSandbox;
+import deus.lava.tool.ClassToTable;
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Gui;
-import net.minecraft.core.Global;
-import net.minecraft.core.block.Block;
-import net.minecraft.core.item.Item;
-import net.minecraft.core.sound.SoundCategory;
-import org.luaj.vm2.*;
-import org.luaj.vm2.compiler.LuaC;
-import org.luaj.vm2.lib.CoroutineLib;
-import org.luaj.vm2.lib.PackageLib;
-import org.luaj.vm2.lib.jse.*;
+import org.luaj.vm2.LuaTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import turniplabs.halplibe.helper.CommandHelper;
 import turniplabs.halplibe.util.GameStartEntrypoint;
 import turniplabs.halplibe.util.RecipeEntrypoint;
-
-import java.util.HashMap;
 
 
 public class Lava implements ModInitializer, GameStartEntrypoint, RecipeEntrypoint {
@@ -50,13 +39,15 @@ public class Lava implements ModInitializer, GameStartEntrypoint, RecipeEntrypoi
 //		});
 
 		//LuaSandbox.runFileSandbox("script.lua");
-
 		LavaSignals.onInit.emit("null");
+
+
 	}
 
 	@Override
 	public void beforeGameStart() {
 		LavaSignals.beforeGameStart.emit("null");
+
 	}
 
 	@Override

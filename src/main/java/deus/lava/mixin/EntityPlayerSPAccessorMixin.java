@@ -19,9 +19,7 @@ public class EntityPlayerSPAccessorMixin implements IEntityPlayerLuaCommon {
 	LuaSignal onPickUpItem = new LuaSignal();
 	@Unique
 	LuaSignal onDropItem = new LuaSignal();
-	//LuaSignal onShift = new LuaSignal();
-	//LuaSignal onRun = new LuaSignal();
-	//LuaSignal onWalk = new LuaSignal();
+
 	@Unique LuaSignal onDeath = new LuaSignal();
 
 	@Inject(method = "onItemPickup(Lnet/minecraft/core/entity/Entity;I)V", at=@At("TAIL"), remap = false)

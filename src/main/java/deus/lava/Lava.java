@@ -52,11 +52,7 @@ public class Lava implements ModInitializer, GameStartEntrypoint, RecipeEntrypoi
 		//LuaSandbox.runFileSandbox("script.lua");
 
 		LavaSignals.onInit.emit("null");
-
-
-
 	}
-
 
 	@Override
 	public void beforeGameStart() {
@@ -76,6 +72,5 @@ public class Lava implements ModInitializer, GameStartEntrypoint, RecipeEntrypoi
 	@Override
 	public void initNamespaces() {
 		LavaSignals.initNamespaces.emit("null");
-
 	}
 }

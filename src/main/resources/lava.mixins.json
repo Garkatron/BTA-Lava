@@ -4,6 +4,7 @@
   "package": "deus.lava.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
+    "EntityLivingAccessorMixin",
     "EntityPlayerAccessorMixin",
     "EntityPlayerMPAccessorMixin",
     "EntityPlayerSPAccessorMixin",

@@ -1,10 +1,12 @@
 package deus.lava.mixin;
 
 import deus.lava.api.interfaces.IEntityPlayerLua;
+import deus.lava.signal.LuaSignal;
 import net.minecraft.core.entity.Entity;
 import net.minecraft.core.entity.player.EntityPlayer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -25,6 +27,17 @@ public abstract class EntityPlayerAccessorMixin implements IEntityPlayerLua {
 
 	@Shadow
 	protected abstract void setPlayerSleeping(int x, int y, int z);
+
+	@Unique
+	LuaSignal onPickUpItem = new LuaSignal();
+	@Unique
+	LuaSignal onDropItem = new LuaSignal();
+	@Unique
+	LuaSignal onJump = new LuaSignal();
+	//LuaSignal onShift = new LuaSignal();
+	//LuaSignal onRun = new LuaSignal();
+	//LuaSignal onWalk = new LuaSignal();
+	@Unique LuaSignal onDeath = new LuaSignal();
 
 	@Inject(method = "jump()V", at=@At("TAIL"), remap = false)
 	private void modifiedJump(CallbackInfo ci) {

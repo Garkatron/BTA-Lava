@@ -1,14 +1,19 @@
 package deus.lava.setup;
 
 import deus.lava.Lava;
+import deus.lava.api.LavaSignals;
+import deus.lava.api.MinecraftAccessor;
 import deus.lava.api.interfaces.IConfigLuaGlobals;
+import deus.lava.api.player.PlayerUtils;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Gui;
+import net.minecraft.core.block.Block;
+import net.minecraft.core.item.Item;
+import net.minecraft.core.sound.SoundCategory;
 import org.luaj.vm2.*;
 import org.luaj.vm2.compiler.LuaC;
 import org.luaj.vm2.lib.*;
-import org.luaj.vm2.lib.jse.CoerceLuaToJava;
-import org.luaj.vm2.lib.jse.JseBaseLib;
-import org.luaj.vm2.lib.jse.JseMathLib;
-import org.luaj.vm2.lib.jse.JseStringLib;
+import org.luaj.vm2.lib.jse.*;
 
 import java.awt.*;
 import java.io.*;
@@ -17,14 +22,18 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 public class LuaSandbox {
 	private static Globals lua;
-	private static final Globals user_globals = new Globals();
+	//private static final Globals user_globals = new Globals();
 	private static final ExecutorService executor = Executors.newFixedThreadPool(10);
+	private static final HashMap<String, CancellableTask> user_tasks = new HashMap<>();
+	private static final Map<String, Future<?>> user_futures = new HashMap<>();
+
 	//private static final HashMap<String, Future<?>> luaThreads = new HashMap<>();
 
 //	public static boolean stopLuaTask(String name) {
@@ -48,6 +57,8 @@ public class LuaSandbox {
 //	}
 //
 	public static void executeTask(String name, CancellableTask task) {
+		user_tasks.put(name, task);
+
 		Future<?> future = executor.submit(()-> {
 			try {
 				task.run();
@@ -55,7 +66,26 @@ public class LuaSandbox {
 				Lava.LOGGER.error("Error on task: {}", e);
 			}
 		});
+		user_futures.put(name, future);
 		Lava.LOGGER.info("Executing task in thread: {}", name);
+	}
+
+	public static boolean stopTask(String name) {
+		if (user_tasks.containsKey(name)) {
+			CancellableTask task = user_tasks.get(name);
+			task.stop();
+
+			Future<?> future = user_futures.remove(name);
+			if (future != null) {
+				future.cancel(true); // Pasa 'true' para intentar interrumpir el hilo
+				Lava.LOGGER.info("Stopped and removed task: {}", name);
+				return true;
+			} else {
+				Lava.LOGGER.warn("Task not found: {}", name);
+				return false;
+			}
+		}
+		return false;
 	}
 
 	public static void init() {
@@ -77,52 +107,52 @@ public class LuaSandbox {
 	}
 
 	public static void exposeUserClasses(IConfigLuaGlobals lambda) {
-		lambda.execute(user_globals);
+		//lambda.execute(user_globals);
 	}
 
 
-	// Método para detener un LuaThread específico
-	public static boolean stopLuaThread(String name) {
-		if (!name.isEmpty()) {
+//	// Método para detener un LuaThread específico
+//	public static boolean stopLuaThread(String name) {
+//		if (!name.isEmpty()) {
+//
+//			//if (!user_globals.get("running").isnil())
+//			LuaValue greetFunction = user_globals.get("stop");
+//
+//			if (greetFunction.isfunction()) {
+//				greetFunction.call();
+//			} else {
+//				System.err.println("La función 'stop' no se encontró o no es una función.");
+//			}
+//
+//			return true;
+//		}
+//
+//		Lava.LOGGER.error("Name is empty");
+//		return false;
+//	}
 
-			//if (!user_globals.get("running").isnil())
-			LuaValue greetFunction = user_globals.get("stop");
-
-			if (greetFunction.isfunction()) {
-				greetFunction.call();
-			} else {
-				System.err.println("La función 'stop' no se encontró o no es una función.");
-			}
-
-			return true;
-		}
-
-		Lava.LOGGER.error("Name is empty");
-		return false;
-	}
 
 
-
-	public static void runFileSandbox(String scriptPath) {
-		// Cada script tendrá su propio conjunto de globals, lo que debería
-		// prevenir la fuga entre scripts que se ejecutan en el mismo servidor.
-		Globals user_globals = createUserGlobals();
-
-		// Cargar el script Lua desde un archivo.
-		try (InputStream luaScript = LuaSandbox.class.getClassLoader().getResourceAsStream(scriptPath)) {
-			if (luaScript == null) {
-				Lava.LOGGER.error("No se pudo encontrar el archivo script.lua");
-				return;
-			}
-
-			// Usar BufferedReader para leer el InputStream
-			BufferedReader reader = new BufferedReader(new InputStreamReader(luaScript));
-			LuaValue chunk = lua.load(reader, scriptPath, user_globals);  // Cargar y ejecutar el script
-			executeLuaThread(user_globals, chunk, scriptPath);
-		} catch (Exception e) {
-			Lava.LOGGER.error("Error al cargar el script Lua: ", e);
-		}
-	}
+//	public static void runFileSandbox(String scriptPath) {
+//		// Cada script tendrá su propio conjunto de globals, lo que debería
+//		// prevenir la fuga entre scripts que se ejecutan en el mismo servidor.
+//		Globals user_globals = createUserGlobals();
+//
+//		// Cargar el script Lua desde un archivo.
+//		try (InputStream luaScript = LuaSandbox.class.getClassLoader().getResourceAsStream(scriptPath)) {
+//			if (luaScript == null) {
+//				Lava.LOGGER.error("No se pudo encontrar el archivo script.lua");
+//				return;
+//			}
+//
+//			// Usar BufferedReader para leer el InputStream
+//			BufferedReader reader = new BufferedReader(new InputStreamReader(luaScript));
+//			LuaValue chunk = lua.load(reader, scriptPath, user_globals);  // Cargar y ejecutar el script
+//			executeLuaThread(user_globals, chunk, scriptPath);
+//		} catch (Exception e) {
+//			Lava.LOGGER.error("Error al cargar el script Lua: ", e);
+//		}
+//	}
 
 	public static void runFileFromPath(String path, Globals environment) {
 		File file = new File(path);
@@ -151,8 +181,11 @@ public class LuaSandbox {
 		executeLuaThread(environment, chunk, script);
 	}
 
-	public static Globals createUserGlobals() {
+	public static Globals createUserGlobals(Object caller) {
 
+		Minecraft mc = Minecraft.getMinecraft(caller);
+
+		Globals user_globals = new Globals();
 		user_globals.load(new JseBaseLib());
 		user_globals.load(new PackageLib());
 		user_globals.load(new Bit32Lib());
@@ -161,6 +194,19 @@ public class LuaSandbox {
 		user_globals.load(new JseMathLib());
 		user_globals.load(new CoroutineLib());
 
+		user_globals.set("PlayerUtils", CoerceJavaToLua.coerce(new PlayerUtils()));
+
+		// Accessors
+		LuaValue minecraft = CoerceJavaToLua.coerce(new MinecraftAccessor(user_globals, mc));
+		user_globals.set("Minecraft", minecraft);
+
+		// Vanilla classes
+		user_globals.set("Item", CoerceJavaToLua.coerce(Item.class));
+		user_globals.set("SoundCategory", CoerceJavaToLua.coerce(SoundCategory.class));
+		user_globals.set("Block", CoerceJavaToLua.coerce(Block.class));
+		user_globals.set("SoundManager", CoerceJavaToLua.coerce(mc.sndManager));
+		user_globals.set("Gui", CoerceJavaToLua.coerce(Gui.class));
+		user_globals.set("Lava", CoerceJavaToLua.coerce(LavaSignals.class));
 
 		return user_globals;
 	}

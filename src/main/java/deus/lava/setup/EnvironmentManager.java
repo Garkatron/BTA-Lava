@@ -11,8 +11,14 @@ public class EnvironmentManager {
 	private static final HashMap<String, Globals> user_environments = new HashMap<>();
 	private static volatile Globals currentEnvironment = null;
 
-	public static void createUserEnvironment(String name) {
-		user_environments.put(name, LuaSandbox.createUserGlobals());
+	public static void createUserEnvironment(String name, Object caller) {
+		if (!user_environments.containsKey(name)) {
+			user_environments.put(name, LuaSandbox.createUserGlobals(caller));
+			Lava.LOGGER.info("The {} Environment exists", name);
+
+		} else {
+			Lava.LOGGER.info("The {} Environment has been created", name);
+		}
 	}
 
 	public static void setCurrentEnvironment(String name) {
@@ -24,10 +30,14 @@ public class EnvironmentManager {
 			return false;
 		}
 		user_environments.remove(name);
-		if (currentEnvironment == user_environments.get(name)) {
-			currentEnvironment = null;
-			Lava.LOGGER.info("Deleted environment: " + name);
-		}
+		currentEnvironment = null;
+
+		if (user_environments.containsKey(name)) return false;
+		if (currentEnvironment!=null) return false;
+
+		Lava.LOGGER.info("Deleted environment: {}", name);
+
+		System.gc();
 		return true;
 	}
 

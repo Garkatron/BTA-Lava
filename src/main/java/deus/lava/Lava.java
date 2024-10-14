@@ -39,27 +39,13 @@ public class Lava implements ModInitializer, GameStartEntrypoint, RecipeEntrypoi
 
 		CommandHelper.createCommand(new ExecuteCommand());
 		CommandHelper.createCommand(new EnvironmentCommand());
-//
- 		mc = Minecraft.getMinecraft(this);
-//
+////
  		LuaSandbox.init();
-		LuaSandbox.exposeUserClasses(globals -> {
-
-			// Utils
-			globals.set("PlayerUtils", CoerceJavaToLua.coerce(new PlayerUtils()));
-
-			// Accessors
-			LuaValue minecraft = CoerceJavaToLua.coerce(new MinecraftAccessor(globals, mc));
-			globals.set("Minecraft", minecraft);
-
-			// Vanilla classes
-			globals.set("Item", CoerceJavaToLua.coerce(Item.class));
-			globals.set("SoundCategory", CoerceJavaToLua.coerce(SoundCategory.class));
-			globals.set("Block", CoerceJavaToLua.coerce(Block.class));
-			globals.set("SoundManager", CoerceJavaToLua.coerce(mc.sndManager));
-			globals.set("Gui", CoerceJavaToLua.coerce(Gui.class));
-			globals.set("Lava", CoerceJavaToLua.coerce(LavaSignals.class));
-		});
+//		LuaSandbox.exposeUserClasses(globals -> {
+//
+//			// Utils
+//
+//		});
 
 		//LuaSandbox.runFileSandbox("script.lua");
 

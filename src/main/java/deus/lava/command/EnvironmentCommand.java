@@ -31,7 +31,7 @@ public class EnvironmentCommand extends Command {
 					commandSender.sendMessage("Usage: /env create <environment_name>");
 					return false;
 				}
-				EnvironmentManager.createUserEnvironment(args[0]);
+				EnvironmentManager.createUserEnvironment(args[0], this);
 				commandSender.sendMessage("Environment created.");
 				return true;
 			});
@@ -71,6 +71,20 @@ public class EnvironmentCommand extends Command {
 				return false;
 			});
 
+		SubCommand stop = new SubCommand("stop", "Stop a task",
+			((commandSender, args) -> {
+				commandSender.sendMessage("Trying to stop task: " + args[0]);
+				return LuaSandbox.stopTask(args[0]);
+			}));
+
+		SubCommand test = new SubCommand("test", "Create and set 'test' environment and then use it with some command",
+			((commandSender, args) -> {
+				createCommand.execute(commandSender, new String[]{"test"});
+				setCommand.execute(commandSender, new String[]{"test"});
+				executeCommand.execute(commandSender, args);
+				return false;
+			}));
+
 		executeCommand.addSubCommand(new SubCommand("fun", "Execute a function",
 			(commandSender, args) -> {
 				Globals env = EnvironmentManager.getCurrentEnvironment();
@@ -82,6 +96,7 @@ public class EnvironmentCommand extends Command {
 					commandSender.sendMessage("Function " + args[0] + " does not exist.");
 					return false;
 				}
+				commandSender.sendMessage("Function " + args[0] + " called");
 				env.get(args[0]).call();
 				return true;
 			}));
@@ -121,6 +136,8 @@ public class EnvironmentCommand extends Command {
 				return true;
 			});
 
+		rootCommand.addSubCommand(test);
+		rootCommand.addSubCommand(stop);
 		rootCommand.addSubCommand(setCommand);
 		rootCommand.addSubCommand(helpCommand);
 		rootCommand.addSubCommand(createCommand);

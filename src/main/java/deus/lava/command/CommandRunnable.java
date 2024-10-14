@@ -5,5 +5,5 @@ import net.minecraft.core.net.command.CommandSender;
 @FunctionalInterface
 public interface CommandRunnable {
 
-	boolean run(CommandSender commandSender, String[] args);
+	Object run(CommandSender commandSender, String[] args);
 }

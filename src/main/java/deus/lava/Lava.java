@@ -4,6 +4,7 @@ import deus.lava.api.*;
 import deus.lava.api.player.PlayerUtils;
 import deus.lava.command.EnvironmentCommand;
 import deus.lava.command.ExecuteCommand;
+import deus.lava.command.LavaCommand;
 import deus.lava.setup.LuaSandbox;
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.client.Minecraft;
@@ -39,6 +40,7 @@ public class Lava implements ModInitializer, GameStartEntrypoint, RecipeEntrypoi
 
 		CommandHelper.createCommand(new ExecuteCommand());
 		CommandHelper.createCommand(new EnvironmentCommand());
+		CommandHelper.createCommand(new LavaCommand());
 ////
  		LuaSandbox.init();
 //		LuaSandbox.exposeUserClasses(globals -> {

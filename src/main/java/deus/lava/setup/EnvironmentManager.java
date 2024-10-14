@@ -4,20 +4,30 @@ import deus.lava.Lava;
 import org.luaj.vm2.Globals;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Set;
 
 public class EnvironmentManager {
 	private static final HashMap<String, Globals> user_environments = new HashMap<>();
 	private static volatile Globals currentEnvironment = null;
+	private static final HashMap<String, Object> envVars = new HashMap<>();
 
-	public static void createUserEnvironment(String name, Object caller) {
+
+	public static void addEnvVar(String name, Object o) {
+		envVars.put(name, o);
+	}
+
+	public static Object getEnvVar(String name) {
+		return envVars.get(name);
+	}
+
+	public static boolean createUserEnvironment(String name, Object caller) {
 		if (!user_environments.containsKey(name)) {
 			user_environments.put(name, LuaSandbox.createUserGlobals(caller));
 			Lava.LOGGER.info("The {} Environment exists", name);
-
+			return true;
 		} else {
 			Lava.LOGGER.info("The {} Environment has been created", name);
+			return false;
 		}
 	}
 

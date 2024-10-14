@@ -239,9 +239,14 @@ public class LuaSandbox {
 
 		// Cuando reanudemos el hilo, ejecutará hasta 'instruction_count' instrucciones
 		// y luego llamará a la función hook que provocará un error y detendrá el script.
-		Varargs result = thread.resume(LuaValue.NIL);
 
-		System.out.println("[[" + scriptIdentifier + "]] -> " + result);
+		try {
+			Varargs result = thread.resume(LuaValue.NIL);
+			System.out.println("[[" + scriptIdentifier + "]] -> " + result);
+		} catch (NullPointerException e) {
+			Lava.LOGGER.error("Error on executeLuaThread: {}", e.getMessage());
+		}
+
 	}
 
 

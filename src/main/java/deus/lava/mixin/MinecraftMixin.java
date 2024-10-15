@@ -17,7 +17,8 @@ import java.util.HashMap;
 @Mixin(Minecraft.class)
 public class MinecraftMixin implements IMinecraftLua {
 
-	@Unique LuaValue luaCode;
+	@Unique
+	LuaValue luaCode;
 
 	@Inject(method = "runTick", at = @At("TAIL"), remap = false)
 	private void modifiedJump(CallbackInfo ci) {

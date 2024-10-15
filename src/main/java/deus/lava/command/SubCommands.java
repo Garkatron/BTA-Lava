@@ -166,12 +166,29 @@ public class SubCommands {
 			return true;
 		});
 
+	public static SubCommand listEnvVars = new SubCommand("listVars",
+		"List the vars of the nve var list",
+		(commandSender, args) -> {
+			HashMap<String, String> vars = EnvironmentManager.getVarsAndTypes();
+
+			if (vars.isEmpty()) {
+				commandSender.sendMessage("No environment variables found.");
+			} else {
+				vars.forEach((key, value) -> {
+					commandSender.sendMessage(key + ": " + value);
+				});
+			}
+
+			return true;
+		});
+
 	static {
 		executeCommand.addSubCommand(fileSubcommand);
 		executeCommand.addSubCommand(codeSubCommand);
 		executeCommand.addSubCommand(funSubCommand);
 		executeCommand.addSubCommand(SubCommands.getHelpSubCommand(SubCommands.executeCommand));
 
+		env.addSubCommand(listEnvVars);
 		env.addSubCommand(createCommand);
 		env.addSubCommand(setCommand);
 		env.addSubCommand(removeCommand);

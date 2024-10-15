@@ -12,31 +12,35 @@ import net.minecraft.core.item.Item;
 import net.minecraft.core.sound.SoundCategory;
 import org.luaj.vm2.*;
 import org.luaj.vm2.compiler.LuaC;
-import org.luaj.vm2.lib.*;
-import org.luaj.vm2.lib.jse.*;
+import org.luaj.vm2.lib.Bit32Lib;
+import org.luaj.vm2.lib.CoroutineLib;
+import org.luaj.vm2.lib.PackageLib;
+import org.luaj.vm2.lib.TableLib;
+import org.luaj.vm2.lib.jse.CoerceJavaToLua;
+import org.luaj.vm2.lib.jse.JseBaseLib;
+import org.luaj.vm2.lib.jse.JseMathLib;
+import org.luaj.vm2.lib.jse.JseStringLib;
 
-import java.awt.*;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 public class LuaSandbox {
-	private static Globals lua;
-	//private static final Globals user_globals = new Globals();
 	private static final ExecutorService executor = Executors.newFixedThreadPool(10);
 	private static final HashMap<String, CancellableTask> user_tasks = new HashMap<>();
 	private static final Map<String, Future<?>> user_futures = new HashMap<>();
+	private static Globals lua;
 
 	//private static final HashMap<String, Future<?>> luaThreads = new HashMap<>();
 
-//	public static boolean stopLuaTask(String name) {
+	//	public static boolean stopLuaTask(String name) {
 //		// Array to hold active threads
 //		if (!luaThreads.containsKey(name)) {
 //			Lava.LOGGER.error("Task: {} not found", name);
@@ -59,7 +63,7 @@ public class LuaSandbox {
 	public static void executeTask(String name, CancellableTask task) {
 		user_tasks.put(name, task);
 
-		Future<?> future = executor.submit(()-> {
+		Future<?> future = executor.submit(() -> {
 			try {
 				task.run();
 			} catch (Exception e) {
@@ -77,7 +81,7 @@ public class LuaSandbox {
 
 			Future<?> future = user_futures.remove(name);
 			if (future != null) {
-				future.cancel(true); // Pasa 'true' para intentar interrumpir el hilo
+				future.cancel(true);
 				Lava.LOGGER.info("Stopped and removed task: {}", name);
 				return true;
 			} else {
@@ -106,9 +110,9 @@ public class LuaSandbox {
 		lambda.execute(lua);
 	}
 
-	public static void exposeUserClasses(IConfigLuaGlobals lambda) {
-		//lambda.execute(user_globals);
-	}
+//	public static void exposeUserClasses(IConfigLuaGlobals lambda) {
+//		//lambda.execute(user_globals);
+//	}
 
 
 //	// Método para detener un LuaThread específico
@@ -130,7 +134,6 @@ public class LuaSandbox {
 //		Lava.LOGGER.error("Name is empty");
 //		return false;
 //	}
-
 
 
 //	public static void runFileSandbox(String scriptPath) {
@@ -157,7 +160,7 @@ public class LuaSandbox {
 	public static void runFileFromPath(String path, Globals environment) {
 		File file = new File(path);
 		if (!file.exists()) {
-			Lava.LOGGER.error("No se pudo encontrar el archivo {}", path);
+			Lava.LOGGER.error("File not found: {}", path);
 			return;
 		}
 		try (InputStream luaScript = Files.newInputStream(file.toPath())) {
@@ -166,7 +169,7 @@ public class LuaSandbox {
 			LuaValue chunk = lua.load(reader, path, environment);
 			executeLuaThread(environment, chunk, path);
 		} catch (Exception e) {
-			Lava.LOGGER.error("Error al cargar el script Lua: ", e);
+			Lava.LOGGER.error("Error when load the file: {}", e);
 		}
 	}
 
@@ -249,7 +252,6 @@ public class LuaSandbox {
 
 	}
 
-
 	static class ReadOnlyLuaTable extends LuaTable {
 		public ReadOnlyLuaTable(LuaValue table) {
 			presize(table.length(), 0);
@@ -260,10 +262,25 @@ public class LuaSandbox {
 				super.rawset(key, value.istable() ? new ReadOnlyLuaTable(value) : value);
 			}
 		}
-		public LuaValue setmetatable(LuaValue metatable) { return error("table is read-only"); }
-		public void set(int key, LuaValue value) { error("table is read-only"); }
-		public void rawset(int key, LuaValue value) { error("table is read-only"); }
-		public void rawset(LuaValue key, LuaValue value) { error("table is read-only"); }
-		public LuaValue remove(int pos) { return error("table is read-only"); }
+
+		public LuaValue setmetatable(LuaValue metatable) {
+			return error("table is read-only");
+		}
+
+		public void set(int key, LuaValue value) {
+			error("table is read-only");
+		}
+
+		public void rawset(int key, LuaValue value) {
+			error("table is read-only");
+		}
+
+		public void rawset(LuaValue key, LuaValue value) {
+			error("table is read-only");
+		}
+
+		public LuaValue remove(int pos) {
+			return error("table is read-only");
+		}
 	}
 }

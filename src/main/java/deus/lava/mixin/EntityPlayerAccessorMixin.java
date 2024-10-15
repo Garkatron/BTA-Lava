@@ -18,65 +18,42 @@ public abstract class EntityPlayerAccessorMixin implements IEntityPlayerLua {
 
 	@Shadow
 	public double xdO;
-
 	@Shadow
 	public double ydO;
-
 	@Shadow
 	public double zd0;
-
-	@Shadow
-	protected abstract void setPlayerSleeping(int x, int y, int z);
-
 	@Unique
 	LuaSignal onPickUpItem = new LuaSignal();
 	@Unique
 	LuaSignal onDropItem = new LuaSignal();
-	@Unique
-	LuaSignal onJump = new LuaSignal();
-	//LuaSignal onShift = new LuaSignal();
-	//LuaSignal onRun = new LuaSignal();
-	//LuaSignal onWalk = new LuaSignal();
-	@Unique LuaSignal onDeath = new LuaSignal();
 
-	@Inject(method = "jump()V", at=@At("TAIL"), remap = false)
-	private void modifiedJump(CallbackInfo ci) {
-		EntityPlayer player = (EntityPlayer) (Object) this;
-		onJump.emit(player.username);
-	}
+	@Shadow
+	protected abstract void setPlayerSleeping(int x, int y, int z);
 
-	@Inject(method = "onDeath(Lnet/minecraft/core/entity/Entity;)V", at=@At("TAIL"), remap = false)
-	private void modifiedDeath(CallbackInfo ci) {
-		EntityPlayer player = (EntityPlayer) (Object) this;
-		onDeath.emit(player.username);
-	}
-
-	@Inject(method = "onItemPickup(Lnet/minecraft/core/entity/Entity;I)V", at=@At("TAIL"), remap = false)
+	@Inject(method = "onItemPickup(Lnet/minecraft/core/entity/Entity;I)V", at = @At("TAIL"), remap = false)
 	private void onItemPickUp(Entity entity, int i, CallbackInfo ci) {
-		// Crear un HashMap para almacenar la información
 		HashMap<String, Object> data = new HashMap<>();
 		data.put("Entity", entity);
 		data.put("i", i);
 
-		// Emitir el HashMap como un único objeto
 		onPickUpItem.emit(data);
 	}
-	@Inject(method = "dropCurrentItem(Z)V", at=@At("TAIL"), remap = false)
+
+	@Inject(method = "dropCurrentItem(Z)V", at = @At("TAIL"), remap = false)
 	private void onDropCurrentItem(boolean dropFullStack, CallbackInfo ci) {
 		onDropItem.emit(dropFullStack);
 	}
 
 	// * ERROR
-
-	@Override
-	public void lava$sleepPlayer() {
-		EntityPlayer player = (EntityPlayer) (Object) this;
-
-		setPlayerSleeping((int) player.x, (int) player.y, (int) player.z);
-	}
-
-	@Override
-	public void lava$sleepPlayerAtCoords(int x, int y, int z) {
-		setPlayerSleeping(x, y, z);
-	}
+//	@Override
+//	public void lava$sleepPlayer() {
+//		EntityPlayer player = (EntityPlayer) (Object) this;
+//
+//		setPlayerSleeping((int) player.x, (int) player.y, (int) player.z);
+//	}
+//
+//	@Override
+//	public void lava$sleepPlayerAtCoords(int x, int y, int z) {
+//		setPlayerSleeping(x, y, z);
+//	}
 }

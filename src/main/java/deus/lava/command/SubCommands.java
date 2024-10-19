@@ -11,6 +11,11 @@ import java.util.List;
 
 public class SubCommands {
 
+	public static final SubCommand env = new SubCommand("env", "Root command for environment operations",
+		(commandSender, args) -> {
+			commandSender.sendMessage("Usage: /env <subcommand> [options]");
+			return false;
+		});
 	// Creación de subcomandos
 	public static SubCommand createCommand = new SubCommand("create", "Create an environment",
 		(commandSender, args) -> {
@@ -27,7 +32,6 @@ public class SubCommands {
 				return false;
 			}
 		});
-
 	public static SubCommand setCommand = new SubCommand("set", "Set current environment",
 		(commandSender, args) -> {
 			if (args.length < 1) {
@@ -38,7 +42,6 @@ public class SubCommands {
 			commandSender.sendMessage("Success.");
 			return true;
 		});
-
 	public static SubCommand stopCommand = new SubCommand("stop", "Stop a task",
 		(commandSender, args) -> {
 			if (args.length < 1) {
@@ -48,7 +51,6 @@ public class SubCommands {
 			commandSender.sendMessage("Trying to stop task: " + args[0]);
 			return LuaSandbox.stopTask(args[0]);
 		});
-
 	public static SubCommand removeCommand = new SubCommand("remove", "Remove an environment",
 		(commandSender, args) -> {
 			if (args.length < 1) {
@@ -63,7 +65,6 @@ public class SubCommands {
 				return false;
 			}
 		});
-
 	public static SubCommand executeCommand = new SubCommand("execute", "Execute a function or script",
 		(commandSender, args) -> {
 			if (args.length < 1) {
@@ -73,7 +74,6 @@ public class SubCommands {
 			commandSender.sendMessage("Executing subcommand...");
 			return false;
 		});
-
 	public static SubCommand test = new SubCommand("test", "Create and set 'test' environment and then use it with some command",
 		(commandSender, args) -> {
 			createCommand.execute(commandSender, new String[]{"test"});
@@ -81,7 +81,6 @@ public class SubCommands {
 			executeCommand.execute(commandSender, args);
 			return false;
 		});
-
 	public static SubCommand funSubCommand = new SubCommand("fun", "Execute a function",
 		(commandSender, args) -> {
 			Globals env = EnvironmentManager.getCurrentEnvironment();
@@ -97,7 +96,6 @@ public class SubCommands {
 			env.get(args[0]).call();
 			return true;
 		});
-
 	public static SubCommand fileSubcommand = new SubCommand("file", "Run a Lua file",
 		(commandSender, args) -> {
 			String filePath;
@@ -121,7 +119,6 @@ public class SubCommands {
 			LuaSandbox.executeTask(filePath, myTask);
 			return true;
 		});
-
 	// Subcomando para ejecutar código
 	public static SubCommand codeSubCommand = new SubCommand("code", "Execute Lua code",
 		(commandSender, args) -> {
@@ -146,13 +143,6 @@ public class SubCommands {
 				return true;
 			}
 		});
-
-	public static final SubCommand env = new SubCommand("env", "Root command for environment operations",
-							 (commandSender, args) -> {
-		commandSender.sendMessage("Usage: /env <subcommand> [options]");
-		return false;
-	});
-
 	public static SubCommand addEnvVarSubCommand = new SubCommand("addVar",
 		"Add a variable to the environment dictionary, which can be accessed using the 'from' keyword in 'code' or 'file' subcommands of 'execute'.",
 		(commandSender, args) -> {
@@ -193,7 +183,6 @@ public class SubCommands {
 		env.addSubCommand(setCommand);
 		env.addSubCommand(removeCommand);
 		env.addSubCommand(executeCommand);
-		env.addSubCommand(stopCommand);
 		env.addSubCommand(test);
 		env.addSubCommand(addEnvVarSubCommand);
 		env.addSubCommand(SubCommands.getHelpSubCommand(env));

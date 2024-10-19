@@ -15,6 +15,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class EntityPlayerMPAccessorMixin implements IEntityPlayerLuaCommon {
 	@Unique
 	LuaSignal onPickUpItem = new LuaSignal();
+
 	@Unique
 	LuaSignal onDropItem = new LuaSignal();
 

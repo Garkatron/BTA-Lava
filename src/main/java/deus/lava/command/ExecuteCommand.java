@@ -1,15 +1,8 @@
 package deus.lava.command;
 
-import deus.lava.Lava;
-import deus.lava.setup.LuaSandbox;
 import net.minecraft.core.net.command.Command;
 import net.minecraft.core.net.command.CommandHandler;
 import net.minecraft.core.net.command.CommandSender;
-
-import java.util.Arrays;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 public class ExecuteCommand extends Command {
 

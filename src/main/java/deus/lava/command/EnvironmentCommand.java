@@ -1,17 +1,10 @@
 package deus.lava.command;
 
-import deus.lava.setup.CancellableTask;
-import deus.lava.setup.EnvironmentManager;
-import deus.lava.setup.LuaSandbox;
 import net.minecraft.core.net.command.Command;
 import net.minecraft.core.net.command.CommandHandler;
 import net.minecraft.core.net.command.CommandSender;
-import org.luaj.vm2.Globals;
 
-import java.util.HashMap;
-import java.util.List;
-
-import static deus.lava.command.SubCommands.*;
+import static deus.lava.command.SubCommands.env;
 
 public class EnvironmentCommand extends Command {
 

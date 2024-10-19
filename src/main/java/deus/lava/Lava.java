@@ -4,12 +4,11 @@ import deus.lava.api.LavaSignals;
 import deus.lava.command.EnvironmentCommand;
 import deus.lava.command.ExecuteCommand;
 import deus.lava.command.LavaCommand;
+import deus.lava.config.ConfigHandler;
 import deus.lava.setup.EnvironmentManager;
 import deus.lava.setup.LuaSandbox;
-import deus.lava.tool.ClassToTable;
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.client.Minecraft;
-import org.luaj.vm2.LuaTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import turniplabs.halplibe.helper.CommandHelper;
@@ -17,7 +16,6 @@ import turniplabs.halplibe.util.GameStartEntrypoint;
 import turniplabs.halplibe.util.RecipeEntrypoint;
 
 import java.io.File;
-import java.io.IOException;
 
 
 public class Lava implements ModInitializer, GameStartEntrypoint, RecipeEntrypoint {
@@ -26,6 +24,7 @@ public class Lava implements ModInitializer, GameStartEntrypoint, RecipeEntrypoi
 	private static Minecraft mc;
 	private static Thread luaThread;
 	public static File lavaFolder;
+	public static ConfigHandler MOD_CONFIG = new ConfigHandler();
 
 	@Override
 	public void onInitialize() {

@@ -28,17 +28,6 @@ public class SubCommand {
 		this.commandRunnable = commandRunnable;
 	}
 
-	public HashMap<String, String> getSubcommandsHelp() {
-		HashMap<String, String> help = new HashMap<>();
-		subCommands.forEach((k,v)->{
-			help.put(v.getName(), v.getDescription());
-		});
-		return help;
-	}
-
-	public Map<String, SubCommand> getSubCommands() {
-		return subCommands;
-	}
 	public static List<HashMap<String, String>> getSubCommandHelpRecursive(SubCommand subCommand) {
 		List<HashMap<String, String>> helpList = new ArrayList<>();
 
@@ -78,6 +67,18 @@ public class SubCommand {
 		}
 
 		return helpList;
+	}
+
+	public HashMap<String, String> getSubcommandsHelp() {
+		HashMap<String, String> help = new HashMap<>();
+		subCommands.forEach((k, v) -> {
+			help.put(v.getName(), v.getDescription());
+		});
+		return help;
+	}
+
+	public Map<String, SubCommand> getSubCommands() {
+		return subCommands;
 	}
 
 	public void printSubCommandHelp(List<HashMap<String, Object>> subCommandList, int level) {

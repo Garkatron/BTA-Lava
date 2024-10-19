@@ -43,17 +43,4 @@ public abstract class EntityPlayerAccessorMixin implements IEntityPlayerLua {
 	private void onDropCurrentItem(boolean dropFullStack, CallbackInfo ci) {
 		onDropItem.emit(dropFullStack);
 	}
-
-	// * ERROR
-//	@Override
-//	public void lava$sleepPlayer() {
-//		EntityPlayer player = (EntityPlayer) (Object) this;
-//
-//		setPlayerSleeping((int) player.x, (int) player.y, (int) player.z);
-//	}
-//
-//	@Override
-//	public void lava$sleepPlayerAtCoords(int x, int y, int z) {
-//		setPlayerSleeping(x, y, z);
-//	}
 }

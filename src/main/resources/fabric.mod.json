@@ -3,8 +3,8 @@
   "id": "lava",
   "version": "${version}",
 
-  "name": "name",
-  "description": "This mod aims to help new BTA modders.",
+  "name": "Lava",
+  "description": "This mod aims to help new BTA Modders, Users and Mapmakers.",
   "authors": [
     "@Garkatron"
   ],
